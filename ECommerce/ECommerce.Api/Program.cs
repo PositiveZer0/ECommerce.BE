@@ -1,17 +1,33 @@
-﻿using ECommerce.Infrastructure;
+﻿using ECommerce.Api.GraphQL.Mutations;
+using ECommerce.Api.GraphQL.Queries;
+using ECommerce.Application.Extensions;
+using ECommerce.Application.Repositories;
+using ECommerce.Infrastructure;
+using ECommerce.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var services = builder.Services;
+
 // Infrastructure
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Application
-// builder.Services.AddScoped<IProductService, ProductService>(); // Example registration
+services.RegisterApplication();
+
+services.AddScoped<IProductRepository, ProductRepository>();
 
 // Api
-builder.Services.AddOpenApi();
+builder.Services
+    .AddOpenApi()
+    .AddGraphQLServer()
+    .AddQueryType<QueryType>()
+    .AddMutationType<MutationType>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
 
 var app = builder.Build();
 
@@ -28,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapGraphQL();
 
 app.MapGet("/ping", () =>
 {

@@ -11,7 +11,7 @@ public class Product
 
     public decimal Price { get; init; }
 
-    public Product Create(string name, string description, decimal price)
+    public static Product Create(string name, string description, decimal price)
     {
         return new Product
         {
