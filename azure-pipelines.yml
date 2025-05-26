@@ -1,19 +1,22 @@
 trigger:
-- main
+    - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+    vmImage: 'ubuntu-latest'
 
 variables:
-  solutionDir: 'ECommerce'
+    solutionDir: 'ECommerce'
 
 steps:
-- script: pwd
-  displayName: 'what directory are we in?'
+    - task: UseDotNet@2
+      inputs:
+          packageType: 'sdk'
+          version: '9.0.x'
 
-- script: ls -la
-  displayName: 'what files are in the directory?'
+    - script: dotnet restore
+      displayName: 'dotnet restore'
+      workingDirectory: $(solutionDir)
 
-- script: dotnet build
-  displayName: 'dotnet build'
-  workingDirectory: $(solutionDir)
+    - script: dotnet build --no-restore
+      displayName: 'dotnet build'
+      workingDirectory: $(solutionDir)
