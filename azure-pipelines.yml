@@ -16,4 +16,4 @@ steps:
 
 - script: dotnet build
   displayName: 'dotnet build'
-  workingDirectory: ${solutionDir}
+  workingDirectory: $(solutionDir)
