@@ -2,31 +2,55 @@ trigger:
     - main
 
 pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: "ubuntu-latest"
 
 variables:
-    solutionDir: 'ECommerce'
+    solutionDir: "ECommerce"
 
-steps:
-    - task: UseDotNet@2
-      inputs:
-          packageType: 'sdk'
-          version: '9.0.x'
+stages:
+    - stage: build
+      jobs:
+          - job: build
+            steps:
+                - task: UseDotNet@2
+                  inputs:
+                      packageType: "sdk"
+                      version: "9.0.x"
 
-    - script: dotnet restore
-      displayName: 'dotnet restore'
-      workingDirectory: $(solutionDir)
+                - script: dotnet restore
+                  displayName: "dotnet restore"
+                  workingDirectory: $(solutionDir)
 
-    - script: dotnet build --no-restore
-      displayName: 'dotnet build'
-      workingDirectory: $(solutionDir)
+                - script: dotnet build --no-restore
+                  displayName: "dotnet build"
+                  workingDirectory: $(solutionDir)
 
-    - script: dotnet publish -o $(build.artifactStagingDirectory)
-      displayName: 'dotnet publish -o $(build.artifactStagingDirectory)'
-      workingDirectory: $(solutionDir)
+                - script: dotnet publish -o $(build.artifactStagingDirectory)
+                  displayName: "dotnet publish -o $(build.artifactStagingDirectory)"
+                  workingDirectory: $(solutionDir)
 
-    - task: PublishPipelineArtifact@1
-      inputs:
-          targetPath: '$(build.artifactStagingDirectory)'
-          artifact: 'drop'
-          publishLocation: 'pipeline'
+                - script: docker --version
+                  displayName: "docker version"
+                  workingDirectory: ${solutionDir}
+
+                - task: PublishPipelineArtifact@1
+                  inputs:
+                      targetPath: "$(build.artifactStagingDirectory)"
+                      artifact: "drop"
+                      publishLocation: "pipeline"
+    - stage: deploy_to_test
+      jobs:
+          - job: deployToAppService
+            displayName: "deploy to azure app service -- test deployment slot"
+            steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                      buildType: "current"
+                      artifactName: "drop"
+                      targetPath: "$(Pipeline.Workspace)/drop"
+                - script: pwd
+                  displayName: what dir is this?
+                  workingDirectory: "$(Pipeline.Workspace)"
+                - script: ls -lR
+                  displayName: what's on disk?
+                  workingDirectory: "$(Pipeline.Workspace)"
