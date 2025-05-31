@@ -31,7 +31,7 @@ stages:
 
                 - script: docker --version
                   displayName: "docker version"
-                  workingDirectory: ${solutionDir}
+                  workingDirectory: $(solutionDir)
 
                 - task: PublishPipelineArtifact@1
                   inputs:
