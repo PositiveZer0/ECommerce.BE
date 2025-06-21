@@ -5,52 +5,28 @@ pool:
     vmImage: "ubuntu-latest"
 
 variables:
-    solutionDir: "ECommerce"
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '5b16ba9d-5cd6-4594-83d8-24857188d59e'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
 
 stages:
-    - stage: build
-      jobs:
-          - job: build
-            steps:
-                - task: UseDotNet@2
-                  inputs:
-                      packageType: "sdk"
-                      version: "9.0.x"
-
-                - script: dotnet restore
-                  displayName: "dotnet restore"
-                  workingDirectory: $(solutionDir)
-
-                - script: dotnet build --no-restore
-                  displayName: "dotnet build"
-                  workingDirectory: $(solutionDir)
-
-                - script: dotnet publish -o $(build.artifactStagingDirectory)
-                  displayName: "dotnet publish -o $(build.artifactStagingDirectory)"
-                  workingDirectory: $(solutionDir)
-
-                - script: docker --version
-                  displayName: "docker version"
-                  workingDirectory: $(solutionDir)
-
-                - task: PublishPipelineArtifact@1
-                  inputs:
-                      targetPath: "$(build.artifactStagingDirectory)"
-                      artifact: "drop"
-                      publishLocation: "pipeline"
-    - stage: deploy_to_test
-      jobs:
-          - job: deployToAppService
-            displayName: "deploy to azure app service -- test deployment slot"
-            steps:
-                - task: DownloadPipelineArtifact@2
-                  inputs:
-                      buildType: "current"
-                      artifactName: "drop"
-                      targetPath: "$(Pipeline.Workspace)/drop"
-                - script: pwd
-                  displayName: what dir is this?
-                  workingDirectory: "$(Pipeline.Workspace)"
-                - script: ls -lR
-                  displayName: what's on disk?
-                  workingDirectory: "$(Pipeline.Workspace)"
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: '5b16ba9d-5cd6-4594-83d8-24857188d59e'
+        repository: 'ecommerce'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        buildContext: '$(System.DefaultWorkingDirectory)'
+        tags: |
+          $(Build.BuildId)
+          latest
