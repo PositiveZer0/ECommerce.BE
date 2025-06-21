@@ -26,7 +26,7 @@ stages:
                       repository: "ecommerce"
                       command: "buildAndPush"
                       Dockerfile: "ECommerce/Dockerfile"
-                      buildContext: "$(System.DefaultWorkingDirectory)"
+                      buildContext: "$(System.DefaultWorkingDirectory)/ECommerce"
                       tags: |
                           $(Build.BuildId)
                           latest
