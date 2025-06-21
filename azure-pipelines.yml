@@ -20,11 +20,6 @@ stages:
             pool:
                 vmImage: $(vmImageName)
             steps:
-                - script: |
-                      echo "Current working dir: $(System.DefaultWorkingDirectory)"
-                      ls -R $(System.DefaultWorkingDirectory)
-                      displayName: 'List all files for debug'
-
                 - task: Docker@2
                   inputs:
                       containerRegistry: "5b16ba9d-5cd6-4594-83d8-24857188d59e"
