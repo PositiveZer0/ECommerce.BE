@@ -5,34 +5,33 @@ pool:
     vmImage: "ubuntu-latest"
 
 variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '5b16ba9d-5cd6-4594-83d8-24857188d59e'
+    # Container registry service connection established during pipeline creation
+    dockerRegistryServiceConnection: "5b16ba9d-5cd6-4594-83d8-24857188d59e"
 
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+    # Agent VM image name
+    vmImageName: "ubuntu-latest"
 
 stages:
-- stage: Build
-  displayName: Build and push stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - script: |
-        echo "Current working dir: $(System.DefaultWorkingDirectory)"
-        ls -R $(System.DefaultWorkingDirectory)
-        displayName: 'List all files for debug'
+    - stage: Build
+      displayName: Build and push stage
+      jobs:
+          - job: Build
+            displayName: Build
+            pool:
+                vmImage: $(vmImageName)
+            steps:
+                - script: |
+                      echo "Current working dir: $(System.DefaultWorkingDirectory)"
+                      ls -R $(System.DefaultWorkingDirectory)
+                      displayName: 'List all files for debug'
 
-    - task: Docker@2
-      inputs:
-        containerRegistry: '5b16ba9d-5cd6-4594-83d8-24857188d59e'
-        repository: 'ecommerce'
-        command: 'buildAndPush'
-        Dockerfile: 'Dockerfile'
-        buildContext: '$(System.DefaultWorkingDirectory)'
-        tags: |
-          $(Build.BuildId)
-          latest
-
+                - task: Docker@2
+                  inputs:
+                      containerRegistry: "5b16ba9d-5cd6-4594-83d8-24857188d59e"
+                      repository: "ecommerce"
+                      command: "buildAndPush"
+                      Dockerfile: "ECommerce/Dockerfile"
+                      buildContext: "$(System.DefaultWorkingDirectory)"
+                      tags: |
+                          $(Build.BuildId)
+                          latest
