@@ -33,6 +33,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
+    logger.LogInformation("Current Connection String for QA: {ConnectionString}", connStr);
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate(); // Create database and apply migrations if necessary
 }
