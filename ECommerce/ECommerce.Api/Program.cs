@@ -33,7 +33,14 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    foreach (var kvp in configuration.AsEnumerable())
+    {
+        logger.LogInformation("Config: {Key} = {Value}", kvp.Key, kvp.Value);
+    }
+
     var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
     logger.LogInformation("Current Connection String for QA: {ConnectionString}", connStr);
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
